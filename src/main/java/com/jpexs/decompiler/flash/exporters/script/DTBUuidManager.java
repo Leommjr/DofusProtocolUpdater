@@ -10,22 +10,22 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DTBProtocolManager {
+public class DTBUuidManager {
 
-    private static final File protocolFile = new File("config/protocol");
-    private static final Map<String, String> headerByMessageName = new HashMap<>();
+    private static final File protocolFile = new File("config/uuids");
+    private static final Map<String, Integer> uuidByScriptName = new HashMap<>();
 
     private synchronized static void save() {
         try (FileOutputStream fos = new FileOutputStream(protocolFile, false);
              OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
-            osw.write(new ObjectMapper().writeValueAsString(headerByMessageName));
+            osw.write(new ObjectMapper().writeValueAsString(uuidByScriptName));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public synchronized static void addProtocol(String messageName, String hexHeader) {
-        headerByMessageName.put(messageName, hexHeader);
+    public synchronized static void addUuid(String messageName, int uuid) {
+        uuidByScriptName.put(messageName, uuid);
         save();
     }
 

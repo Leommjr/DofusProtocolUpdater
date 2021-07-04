@@ -41,7 +41,7 @@ public class AS3ScriptExporter {
     public List<File> exportActionScript3(SWF swf, List<ScriptPack> as3scripts, ScriptExportSettings exportSettings, boolean parallel, EventListener evl) {
         final List<File> ret = new ArrayList<>();
         List<ScriptPack> packs = as3scripts != null ? as3scripts : swf.getAS3Packs();
-        packs = packs.stream().filter(s -> s.getPath().endsWith("Message")).collect(Collectors.toList());
+        packs = packs.stream().filter(s -> s.getPath().startsWith("com.ankamagames.dofus.network")).collect(Collectors.toList());
 
         List<String> ignoredClasses = new ArrayList<>();
         List<String> ignoredNss = new ArrayList<>();

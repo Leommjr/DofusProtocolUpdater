@@ -87,11 +87,9 @@ public class ExportPackTask implements Callable<File> {
                     .filter(Matcher::find)
                     .findFirst()
                     .ifPresent(m -> {
-                        int protocolId = Integer.parseInt(m.group(1));
-                        int header = protocolId >> 6;
-                        String hexHeader = "0x" + Integer.toHexString(header);
-                        DTBProtocolManager.addProtocol(this.fileName, hexHeader);
-                        this.eventListener.handleExportedEvent("script", this.index, this.count, this.fileName + " : " + hexHeader + ", " + Helper.formatTimeSec(time));
+                        int uuid = Integer.parseInt(m.group(1));
+                        DTBUuidManager.addUuid(this.fileName, uuid);
+                        this.eventListener.handleExportedEvent("script", this.index, this.count, this.fileName + " : " + uuid + ", " + Helper.formatTimeSec(time));
                     });
         }
 
