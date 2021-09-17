@@ -1,20 +1,4 @@
-/*
- *  Copyright (C) 2010-2021 JPEXS, All rights reserved.
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library.
- */
-package com.jpexs.decompiler.flash.exporters.script;
+package fr.lewon.dofus.export;
 
 import com.jpexs.decompiler.flash.EventListener;
 import com.jpexs.decompiler.flash.SWF;
@@ -22,34 +6,39 @@ import com.jpexs.decompiler.flash.abc.ScriptPack;
 import com.jpexs.decompiler.flash.configuration.Configuration;
 import com.jpexs.decompiler.flash.exporters.settings.ScriptExportSettings;
 import com.jpexs.helpers.Helper;
+import fr.lewon.dofus.export.tasks.DTBExportPackTask;
+import fr.lewon.dofus.export.tasks.DofusMessageReceiverExportPackTask;
+import fr.lewon.dofus.export.tasks.DofusProtocolTypeExportPackTask;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-/**
- * @author JPEXS
- */
-public class AS3ScriptExporter {
+public class DTBAS3ScriptExporter {
 
-    private static final Logger logger = Logger.getLogger(AS3ScriptExporter.class.getName());
+    private static final Logger logger = Logger.getLogger(DTBAS3ScriptExporter.class.getName());
 
-    public List<File> exportActionScript3(SWF swf, List<ScriptPack> as3scripts, ScriptExportSettings exportSettings, boolean parallel, EventListener evl) {
+    public List<File> exportDofusScript(SWF swf, List<ScriptPack> as3scripts, ScriptExportSettings exportSettings, boolean parallel, EventListener evl) {
         final List<File> ret = new ArrayList<>();
         List<ScriptPack> packs = as3scripts != null ? as3scripts : swf.getAS3Packs();
-        packs = packs.stream().filter(s -> s.getPath().startsWith("com.ankamagames.dofus.network")).collect(Collectors.toList());
+        List<String> toExportNames = Arrays.stream(ExportDofusClass.values())
+                .map(ExportDofusClass::getFileName)
+                .collect(Collectors.toList());
+        packs = packs.stream()
+                .filter(s -> toExportNames.contains(s.getName()))
+                .collect(Collectors.toList());
 
         List<String> ignoredClasses = new ArrayList<>();
         List<String> ignoredNss = new ArrayList<>();
 
         String flexClass = swf.getFlexMainClass(ignoredClasses, ignoredNss);
 
-        int cnt = 1;
-        List<ExportPackTask> tasks = new ArrayList<>();
+        List<DTBExportPackTask> tasks = new ArrayList<>();
         for (ScriptPack item : packs) {
             if (!item.isSimple && Configuration.ignoreCLikePackages.get()) {
                 continue;
@@ -60,12 +49,16 @@ public class AS3ScriptExporter {
             if (flexClass != null && item.getClassPath().toRawString().equals(flexClass)) {
                 continue;
             }
-            tasks.add(new ExportPackTask(cnt++, packs.size(), item.getClassPath(), item, item.getName(), exportSettings, parallel, evl));
+            if (item.getName().equals(ExportDofusClass.MESSAGE_RECEIVER.getFileName())) {
+                tasks.add(new DofusMessageReceiverExportPackTask(item.getClassPath(), item, item.getName(), exportSettings, parallel, evl));
+            } else if (item.getName().equals(ExportDofusClass.PROTOCOL_TYPE_MANAGER.getFileName())) {
+                tasks.add(new DofusProtocolTypeExportPackTask(item.getClassPath(), item, item.getName(), exportSettings, parallel, evl));
+            }
         }
 
         ExecutorService executor = Executors.newFixedThreadPool(Configuration.getParallelThreadCount());
         List<Future<File>> futureResults = new ArrayList<>();
-        for (ExportPackTask task : tasks) {
+        for (DTBExportPackTask task : tasks) {
             Future<File> future = executor.submit(task);
             futureResults.add(future);
         }

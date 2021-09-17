@@ -5,8 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a6aeb2e1-7d88-4ce8-9530-37d316d0b76e" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/fr/lewon/dofus/export/ExportDofusClass.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/fr/lewon/dofus/export/tasks/DTBExportPackTask.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/fr/lewon/dofus/export/tasks/DofusMessageReceiverExportPackTask.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/fr/lewon/dofus/export/tasks/DofusProtocolTypeExportPackTask.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/fr/lewon/dofus/managers/DTBMessageReceiverManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/fr/lewon/dofus/managers/MessageIdByNameManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/jpexs/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/jpexs/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/jpexs/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/lewon/dofus/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/jpexs/decompiler/flash/SWF.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/jpexs/decompiler/flash/SWF.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/jpexs/decompiler/flash/exporters/script/AS3ScriptExporter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/lewon/dofus/export/DTBAS3ScriptExporter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/jpexs/decompiler/flash/exporters/script/DTBUuidManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/lewon/dofus/managers/DTBProtocolTypeManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/jpexs/decompiler/flash/exporters/script/ExportPackTask.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,7 +27,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Kotlin Class" />
         <option value="Class" />
+        <option value="Enum" />
       </list>
     </option>
   </component>
@@ -55,19 +68,6 @@
     </key>
   </component>
   <component name="RunManager" selected="Application.Main (1)">
-    <configuration name="Main (1)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.jpexs.Main" />
-      <module name="jpexs-decompiler" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.jpexs.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.jpexs.decompiler.flash.gui.Main" />
       <module name="jpexs-decompiler" />
@@ -81,9 +81,30 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="fr.lewon.dofus.Main" />
+      <module name="jpexs-decompiler" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="fr.lewon.dofus.managers.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Test" />
+      <module name="jpexs-decompiler" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Application.Main (1)" />
+        <item itemvalue="Application.Test" />
         <item itemvalue="Application.Main" />
       </list>
     </recent_temporary>

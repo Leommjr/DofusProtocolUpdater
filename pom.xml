@@ -49,7 +49,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.jpexs.Main</mainClass>
+                            <mainClass>fr.lewon.dofus.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

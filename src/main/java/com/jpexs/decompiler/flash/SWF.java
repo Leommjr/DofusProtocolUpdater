@@ -45,7 +45,6 @@ import com.jpexs.decompiler.flash.configuration.Configuration;
 import com.jpexs.decompiler.flash.dumpview.DumpInfoSwfNode;
 import com.jpexs.decompiler.flash.ecma.Null;
 import com.jpexs.decompiler.flash.exporters.modes.ScriptExportMode;
-import com.jpexs.decompiler.flash.exporters.script.AS3ScriptExporter;
 import com.jpexs.decompiler.flash.exporters.settings.ScriptExportSettings;
 import com.jpexs.decompiler.flash.exporters.shape.ShapeExportData;
 import com.jpexs.decompiler.flash.helpers.NulWriter;
@@ -68,6 +67,7 @@ import com.jpexs.decompiler.graph.model.IfItem;
 import com.jpexs.decompiler.graph.model.LocalData;
 import com.jpexs.helpers.*;
 import com.jpexs.helpers.utf8.Utf8Helper;
+import fr.lewon.dofus.export.DTBAS3ScriptExporter;
 
 import java.awt.geom.AffineTransform;
 import java.io.*;
@@ -1469,7 +1469,7 @@ public final class SWF implements SWFContainerItem, Timelined {
 
         if (this.isAS3()) {
             if (as3) {
-                ret.addAll(new AS3ScriptExporter().exportActionScript3(this, as3scripts, exportSettings, parallel, evl));
+                ret.addAll(new DTBAS3ScriptExporter().exportDofusScript(this, as3scripts, exportSettings, parallel, evl));
             }
         }
         return ret;
