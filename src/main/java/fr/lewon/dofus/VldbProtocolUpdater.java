@@ -19,21 +19,24 @@ package fr.lewon.dofus;
 import com.jpexs.decompiler.flash.EventListener;
 import com.jpexs.decompiler.flash.SWF;
 import com.jpexs.decompiler.flash.SWFSourceInfo;
-import com.jpexs.decompiler.flash.SwfOpenException;
 import com.jpexs.decompiler.flash.configuration.Configuration;
 import com.jpexs.decompiler.flash.exporters.modes.ScriptExportMode;
 import com.jpexs.decompiler.flash.exporters.settings.ScriptExportSettings;
 import com.jpexs.decompiler.flash.treeitems.SWFList;
 import com.jpexs.helpers.CancellableWorker;
 import com.jpexs.helpers.Helper;
+import fr.lewon.dofus.export.builder.VldbExportPackTaskBuilder;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Main {
+public class VldbProtocolUpdater {
 
-    public static void main(String[] args) throws IOException {
+    private VldbProtocolUpdater() {
+    }
+
+    public static void updateManagers(List<VldbExportPackTaskBuilder> taskBuilders) throws IOException {
         List<String> gameLocCmdResult = execCmd("cmd", "/c", "where Dofus.exe");
         if (gameLocCmdResult.size() != 1) {
             throw new RuntimeException("Unable to find Dofus.exe, is it in your path?");
@@ -44,7 +47,7 @@ public class Main {
         if (!swfFile.exists() || !swfFile.isFile()) {
             throw new RuntimeException("Unable to find Dofus.exe, is it in your path?");
         }
-        parseExport(swfFile.getAbsolutePath());
+        updateManagers(swfFile, taskBuilders);
     }
 
     private static List<String> execCmd(String... command) throws IOException {
@@ -58,66 +61,55 @@ public class Main {
         return lines;
     }
 
-    private static void parseExport(String swfFilePath) {
-        File inFileOrFolder = new File(swfFilePath);
-        if (!inFileOrFolder.exists()) {
+    public static void updateManagers(File swfFile, List<VldbExportPackTaskBuilder> taskBuilders) {
+        if (!swfFile.exists()) {
             throw new RuntimeException("Input SWF file does not exist!");
         }
 
         try {
-            File[] inFiles = new File[]{inFileOrFolder};
+            long startTimeSwf = System.currentTimeMillis();
+            System.out.println("Start exporting " + swfFile.getName());
 
-            for (File inFile : inFiles) {
-                long startTimeSwf = System.currentTimeMillis();
-                System.out.println("Start exporting " + inFile.getName());
+            SWFSourceInfo sourceInfo = new SWFSourceInfo(null, swfFile.getAbsolutePath(), swfFile.getName());
+            SWF swf = new SWF(new FileInputStream(swfFile), sourceInfo.getFile(), sourceInfo.getFileTitle(), Configuration.parallelSpeedUp.get());
 
-                SWFSourceInfo sourceInfo = new SWFSourceInfo(null, inFile.getAbsolutePath(), inFile.getName());
-                SWF swf;
-                try {
-                    swf = new SWF(new FileInputStream(inFile), sourceInfo.getFile(), sourceInfo.getFileTitle(), Configuration.parallelSpeedUp.get());
-                } catch (FileNotFoundException | SwfOpenException ex) {
-                    continue;
+            swf.swfList = new SWFList();
+            swf.swfList.sourceInfo = sourceInfo;
+
+            swf.addEventListener(new EventListener() {
+                @Override
+                public void handleExportingEvent(String type, int index, int count, Object data) {
                 }
 
-                swf.swfList = new SWFList();
-                swf.swfList.sourceInfo = sourceInfo;
-
-                swf.addEventListener(new EventListener() {
-                    @Override
-                    public void handleExportingEvent(String type, int index, int count, Object data) {
+                @Override
+                public void handleExportedEvent(String type, int index, int count, Object data) {
+                    String text = "Exported ";
+                    if (type != null && type.length() > 0) {
+                        text += type + " ";
                     }
+                    System.out.println(text + index + "/" + count + " " + data);
+                }
 
-                    @Override
-                    public void handleExportedEvent(String type, int index, int count, Object data) {
-                        String text = "Exported ";
-                        if (type != null && type.length() > 0) {
-                            text += type + " ";
-                        }
-                        System.out.println(text + index + "/" + count + " " + data);
-                    }
+                @Override
+                public void handleEvent(String event, Object data) {
+                }
+            });
 
-                    @Override
-                    public void handleEvent(String event, Object data) {
-                    }
-                });
+            ScriptExportSettings scriptExportSettings = new ScriptExportSettings(ScriptExportMode.AS);
+            System.out.println("Exporting scripts...");
 
-                ScriptExportSettings scriptExportSettings = new ScriptExportSettings(ScriptExportMode.AS);
-                System.out.println("Exporting scripts...");
+            swf.exportActionScript(scriptExportSettings, swf.getExportEventListener(), taskBuilders);
 
-                swf.exportActionScript(scriptExportSettings, true, swf.getExportEventListener());
+            long stopTimeSwf = System.currentTimeMillis();
+            long time = stopTimeSwf - startTimeSwf;
+            System.out.println("Export finished: " + swfFile.getName() + " Export time: " + Helper.formatTimeSec(time));
 
-                long stopTimeSwf = System.currentTimeMillis();
-                long time = stopTimeSwf - startTimeSwf;
-                System.out.println("Export finished: " + inFile.getName() + " Export time: " + Helper.formatTimeSec(time));
-
-                swf.clearAllCache();
-                CancellableWorker.cancelBackgroundThreads();
-                System.exit(0);
-            }
+            swf.clearAllCache();
+            CancellableWorker.cancelBackgroundThreads();
         } catch (OutOfMemoryError |
                 Exception ex) {
             System.err.print("FAIL: Exporting Failed on Exception - ");
-            System.exit(1);
+            CancellableWorker.cancelBackgroundThreads();
         }
     }
 

@@ -67,7 +67,8 @@ import com.jpexs.decompiler.graph.model.IfItem;
 import com.jpexs.decompiler.graph.model.LocalData;
 import com.jpexs.helpers.*;
 import com.jpexs.helpers.utf8.Utf8Helper;
-import fr.lewon.dofus.export.DTBAS3ScriptExporter;
+import fr.lewon.dofus.export.VldbAS3ScriptExporter;
+import fr.lewon.dofus.export.builder.VldbExportPackTaskBuilder;
 
 import java.awt.geom.AffineTransform;
 import java.io.*;
@@ -1460,16 +1461,16 @@ public final class SWF implements SWFContainerItem, Timelined {
         return evl;
     }
 
-    public List<File> exportActionScript(ScriptExportSettings exportSettings, boolean parallel, EventListener evl) throws IOException {
-        return this.exportActionScript(null, exportSettings, parallel, evl, true, true);
+    public List<File> exportActionScript(ScriptExportSettings exportSettings, EventListener evl, List<VldbExportPackTaskBuilder> taskBuilders) throws IOException {
+        return this.exportActionScript(null, exportSettings, evl, true, true, taskBuilders);
     }
 
-    public List<File> exportActionScript(List<ScriptPack> as3scripts, ScriptExportSettings exportSettings, boolean parallel, EventListener evl, boolean as2, boolean as3) throws IOException {
+    public List<File> exportActionScript(List<ScriptPack> as3scripts, ScriptExportSettings exportSettings, EventListener evl, boolean as2, boolean as3, List<VldbExportPackTaskBuilder> taskBuilders) throws IOException {
         List<File> ret = new ArrayList<>();
 
         if (this.isAS3()) {
             if (as3) {
-                ret.addAll(new DTBAS3ScriptExporter().exportDofusScript(this, as3scripts, exportSettings, parallel, evl));
+                ret.addAll(new VldbAS3ScriptExporter().exportDofusScript(this, as3scripts, exportSettings, evl, taskBuilders));
             }
         }
         return ret;

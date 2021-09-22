@@ -2,11 +2,10 @@ package fr.lewon.dofus.export.tasks;
 
 import com.jpexs.decompiler.flash.EventListener;
 import com.jpexs.decompiler.flash.RunnableIOExResult;
-import com.jpexs.decompiler.flash.abc.ClassPath;
 import com.jpexs.decompiler.flash.abc.ScriptPack;
 import com.jpexs.decompiler.flash.exporters.settings.ScriptExportSettings;
 import com.jpexs.helpers.Helper;
-import fr.lewon.dofus.managers.MessageIdByNameManager;
+import fr.lewon.dofus.export.manager.IdByNameManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,24 +16,27 @@ import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class DTBExportPackTask implements Callable<File> {
+public class VldbExportPackTask implements Callable<File> {
 
     protected ScriptPack pack;
-    protected String fileName;
     protected ScriptExportSettings exportSettings;
-    protected ClassPath path;
-    protected boolean parallel;
+    protected EventListener eventListener;
+    protected String fileName;
+    protected IdByNameManager manager;
+    protected String arrayName;
+    protected String eventType;
+
     protected long startTime;
     protected long stopTime;
-    protected EventListener eventListener;
 
-    public DTBExportPackTask(ClassPath path, ScriptPack pack, String fileName, ScriptExportSettings exportSettings, boolean parallel, EventListener evl) {
+    public VldbExportPackTask(ScriptPack pack, ScriptExportSettings exportSettings, EventListener evl, String fileName, IdByNameManager manager, String arrayName, String eventType) {
         this.pack = pack;
-        this.fileName = fileName;
         this.exportSettings = exportSettings;
-        this.path = path;
-        this.parallel = parallel;
         this.eventListener = evl;
+        this.fileName = fileName;
+        this.manager = manager;
+        this.arrayName = arrayName;
+        this.eventType = eventType;
     }
 
     @Override
@@ -42,9 +44,9 @@ public abstract class DTBExportPackTask implements Callable<File> {
         RunnableIOExResult<String> rio = new RunnableIOExResult<>() {
             @Override
             public void run() throws IOException, InterruptedException {
-                DTBExportPackTask thisObj = DTBExportPackTask.this;
+                VldbExportPackTask thisObj = VldbExportPackTask.this;
                 thisObj.startTime = System.currentTimeMillis();
-                this.result = thisObj.pack.export(thisObj.exportSettings, thisObj.parallel);
+                this.result = thisObj.pack.export(thisObj.exportSettings, true);
                 thisObj.stopTime = System.currentTimeMillis();
             }
         };
@@ -59,9 +61,6 @@ public abstract class DTBExportPackTask implements Callable<File> {
     private void handleExport(RunnableIOExResult<String> rio) {
         if (this.eventListener != null) {
             long time = this.stopTime - this.startTime;
-            String arrayName = this.getArrayName();
-            String eventType = this.getEventType();
-            MessageIdByNameManager manager = this.getManager();
             Pattern p = Pattern.compile(arrayName + "\\[([0-9]+)] = (.*?);");
             Map<Integer, String> messageNamesById = new HashMap<>();
             Arrays.stream(rio.result.split("\n"))
@@ -75,19 +74,14 @@ public abstract class DTBExportPackTask implements Callable<File> {
 
             int cpt = 0;
             int count = messageNamesById.size();
+
+            manager.clearAll();
             for (Map.Entry<Integer, String> e : messageNamesById.entrySet()) {
                 int messageId = e.getKey();
                 String messageName = e.getValue();
-                manager.addMessage(messageName, messageId);
+                manager.addPair(messageName, messageId);
                 this.eventListener.handleExportedEvent(eventType, ++cpt, count, messageName + " : " + messageId + ", " + Helper.formatTimeSec(time));
             }
-            manager.save();
         }
     }
-
-    protected abstract MessageIdByNameManager getManager();
-
-    protected abstract String getArrayName();
-
-    protected abstract String getEventType();
 }

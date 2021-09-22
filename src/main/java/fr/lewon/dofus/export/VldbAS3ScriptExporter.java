@@ -6,29 +6,28 @@ import com.jpexs.decompiler.flash.abc.ScriptPack;
 import com.jpexs.decompiler.flash.configuration.Configuration;
 import com.jpexs.decompiler.flash.exporters.settings.ScriptExportSettings;
 import com.jpexs.helpers.Helper;
-import fr.lewon.dofus.export.tasks.DTBExportPackTask;
-import fr.lewon.dofus.export.tasks.DofusMessageReceiverExportPackTask;
-import fr.lewon.dofus.export.tasks.DofusProtocolTypeExportPackTask;
+import fr.lewon.dofus.export.builder.VldbExportPackTaskBuilder;
+import fr.lewon.dofus.export.tasks.VldbExportPackTask;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class DTBAS3ScriptExporter {
+public class VldbAS3ScriptExporter {
 
-    private static final Logger logger = Logger.getLogger(DTBAS3ScriptExporter.class.getName());
+    private static final Logger logger = Logger.getLogger(VldbAS3ScriptExporter.class.getName());
 
-    public List<File> exportDofusScript(SWF swf, List<ScriptPack> as3scripts, ScriptExportSettings exportSettings, boolean parallel, EventListener evl) {
+    public List<File> exportDofusScript(SWF swf, List<ScriptPack> as3scripts, ScriptExportSettings exportSettings, EventListener evl, List<VldbExportPackTaskBuilder> taskBuilders) {
         final List<File> ret = new ArrayList<>();
         List<ScriptPack> packs = as3scripts != null ? as3scripts : swf.getAS3Packs();
-        List<String> toExportNames = Arrays.stream(ExportDofusClass.values())
-                .map(ExportDofusClass::getFileName)
-                .collect(Collectors.toList());
+
+        Map<String, VldbExportPackTaskBuilder> buildersByFileName = new HashMap<>();
+        taskBuilders.forEach(b -> buildersByFileName.put(b.getFileName(), b));
+
+        Set<String> toExportNames = buildersByFileName.keySet();
         packs = packs.stream()
                 .filter(s -> toExportNames.contains(s.getName()))
                 .collect(Collectors.toList());
@@ -38,7 +37,7 @@ public class DTBAS3ScriptExporter {
 
         String flexClass = swf.getFlexMainClass(ignoredClasses, ignoredNss);
 
-        List<DTBExportPackTask> tasks = new ArrayList<>();
+        List<VldbExportPackTask> tasks = new ArrayList<>();
         for (ScriptPack item : packs) {
             if (!item.isSimple && Configuration.ignoreCLikePackages.get()) {
                 continue;
@@ -49,16 +48,18 @@ public class DTBAS3ScriptExporter {
             if (flexClass != null && item.getClassPath().toRawString().equals(flexClass)) {
                 continue;
             }
-            if (item.getName().equals(ExportDofusClass.MESSAGE_RECEIVER.getFileName())) {
-                tasks.add(new DofusMessageReceiverExportPackTask(item.getClassPath(), item, item.getName(), exportSettings, parallel, evl));
-            } else if (item.getName().equals(ExportDofusClass.PROTOCOL_TYPE_MANAGER.getFileName())) {
-                tasks.add(new DofusProtocolTypeExportPackTask(item.getClassPath(), item, item.getName(), exportSettings, parallel, evl));
+
+            VldbExportPackTaskBuilder taskBuilder = buildersByFileName.get(item.getName());
+            if (taskBuilder == null) {
+                continue;
             }
+
+            tasks.add(taskBuilder.build(item, exportSettings, evl));
         }
 
         ExecutorService executor = Executors.newFixedThreadPool(Configuration.getParallelThreadCount());
         List<Future<File>> futureResults = new ArrayList<>();
-        for (DTBExportPackTask task : tasks) {
+        for (VldbExportPackTask task : tasks) {
             Future<File> future = executor.submit(task);
             futureResults.add(future);
         }
