@@ -27,38 +27,13 @@ import com.jpexs.helpers.CancellableWorker;
 import com.jpexs.helpers.Helper;
 import fr.lewon.dofus.export.builder.VldbExportPackTaskBuilder;
 
-import java.io.*;
-import java.util.ArrayList;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 
 public class VldbProtocolUpdater {
 
     private VldbProtocolUpdater() {
-    }
-
-    public static void updateManagers(List<VldbExportPackTaskBuilder> taskBuilders) throws IOException {
-        List<String> gameLocCmdResult = execCmd("cmd", "/c", "where Dofus.exe");
-        if (gameLocCmdResult.size() != 1) {
-            throw new RuntimeException("Unable to find Dofus.exe, is it in your path?");
-        }
-        String gameLocStr = gameLocCmdResult.get(0);
-        File gameDir = new File(gameLocStr).getParentFile();
-        File swfFile = new File(gameDir, "DofusInvoker.swf");
-        if (!swfFile.exists() || !swfFile.isFile()) {
-            throw new RuntimeException("Unable to find Dofus.exe, is it in your path?");
-        }
-        updateManagers(swfFile, taskBuilders);
-    }
-
-    private static List<String> execCmd(String... command) throws IOException {
-        List<String> lines = new ArrayList<>();
-        Process process = new ProcessBuilder(command).start();
-        BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        String line;
-        while ((line = input.readLine()) != null) {
-            lines.add(line);
-        }
-        return lines;
     }
 
     public static void updateManagers(File swfFile, List<VldbExportPackTaskBuilder> taskBuilders) {
@@ -78,16 +53,16 @@ public class VldbProtocolUpdater {
 
             swf.addEventListener(new EventListener() {
                 @Override
-                public void handleExportingEvent(String type, int index, int count, Object data) {
+                public void handleExportingEvent(String type, Object data) {
                 }
 
                 @Override
-                public void handleExportedEvent(String type, int index, int count, Object data) {
+                public void handleExportedEvent(String type, Object data) {
                     String text = "Exported ";
                     if (type != null && type.length() > 0) {
-                        text += type + " ";
+                        text += type;
                     }
-                    System.out.println(text + index + "/" + count + " " + data);
+                    System.out.println(text + " : " + data);
                 }
 
                 @Override

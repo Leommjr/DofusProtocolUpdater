@@ -24,19 +24,17 @@ public class VldbExportPackTask implements Callable<File> {
     protected String fileName;
     protected IdByNameManager manager;
     protected String arrayName;
-    protected String eventType;
 
     protected long startTime;
     protected long stopTime;
 
-    public VldbExportPackTask(ScriptPack pack, ScriptExportSettings exportSettings, EventListener evl, String fileName, IdByNameManager manager, String arrayName, String eventType) {
+    public VldbExportPackTask(ScriptPack pack, ScriptExportSettings exportSettings, EventListener evl, String fileName, IdByNameManager manager, String arrayName) {
         this.pack = pack;
         this.exportSettings = exportSettings;
         this.eventListener = evl;
         this.fileName = fileName;
         this.manager = manager;
         this.arrayName = arrayName;
-        this.eventType = eventType;
     }
 
     @Override
@@ -72,16 +70,9 @@ public class VldbExportPackTask implements Callable<File> {
                         messageNamesById.put(messageId, messageName);
                     });
 
-            int cpt = 0;
-            int count = messageNamesById.size();
-
             manager.clearAll();
-            for (Map.Entry<Integer, String> e : messageNamesById.entrySet()) {
-                int messageId = e.getKey();
-                String messageName = e.getValue();
-                manager.addPair(messageName, messageId);
-                this.eventListener.handleExportedEvent(eventType, ++cpt, count, messageName + " : " + messageId + ", " + Helper.formatTimeSec(time));
-            }
+            messageNamesById.forEach((id, name) -> manager.addPair(name, id));
+            this.eventListener.handleExportedEvent(fileName, messageNamesById.size() + ", " + Helper.formatTimeSec(time));
         }
     }
 }

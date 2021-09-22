@@ -22,12 +22,10 @@ import com.jpexs.decompiler.flash.abc.ABC;
 import com.jpexs.decompiler.flash.abc.ClassPath;
 import com.jpexs.decompiler.flash.abc.RenameType;
 import com.jpexs.decompiler.flash.abc.ScriptPack;
-import com.jpexs.decompiler.flash.abc.avm2.AVM2Code;
 import com.jpexs.decompiler.flash.abc.avm2.deobfuscation.AbcMultiNameCollisionFixer;
 import com.jpexs.decompiler.flash.abc.avm2.deobfuscation.DeobfuscationLevel;
 import com.jpexs.decompiler.flash.abc.avm2.model.*;
 import com.jpexs.decompiler.flash.abc.types.ConvertData;
-import com.jpexs.decompiler.flash.abc.types.MethodBody;
 import com.jpexs.decompiler.flash.abc.types.Multiname;
 import com.jpexs.decompiler.flash.abc.types.traits.Trait;
 import com.jpexs.decompiler.flash.abc.types.traits.TraitClass;
@@ -650,11 +648,6 @@ public final class SWF implements SWFContainerItem, Timelined {
      */
     public void saveTo(OutputStream os) throws IOException {
         byte[] uncompressedData = this.saveToByteArray();
-        compress(new ByteArrayInputStream(uncompressedData), os, this.compression, this.lzmaProperties);
-    }
-
-    public void saveTo(OutputStream os, boolean gfx) throws IOException {
-        byte[] uncompressedData = this.saveToByteArray(gfx);
         compress(new ByteArrayInputStream(uncompressedData), os, this.compression, this.lzmaProperties);
     }
 
@@ -1439,16 +1432,16 @@ public final class SWF implements SWFContainerItem, Timelined {
     public EventListener getExportEventListener() {
         EventListener evl = new EventListener() {
             @Override
-            public void handleExportingEvent(String type, int index, int count, Object data) {
+            public void handleExportingEvent(String type, Object data) {
                 for (EventListener listener : SWF.this.listeners) {
-                    listener.handleExportingEvent(type, index, count, data);
+                    listener.handleExportingEvent(type, data);
                 }
             }
 
             @Override
-            public void handleExportedEvent(String type, int index, int count, Object data) {
+            public void handleExportedEvent(String type, Object data) {
                 for (EventListener listener : SWF.this.listeners) {
-                    listener.handleExportedEvent(type, index, count, data);
+                    listener.handleExportedEvent(type, data);
                 }
             }
 
@@ -2000,18 +1993,6 @@ public final class SWF implements SWFContainerItem, Timelined {
         }
 
         return false;
-    }
-
-    public void fixAS3Code() {
-        for (ABCContainerTag abcTag : this.getAbcList()) {
-            ABC abc = abcTag.getABC();
-            for (MethodBody body : abc.bodies) {
-                AVM2Code code = body.getCode();
-                body.setCodeBytes(code.getBytes());
-            }
-
-            ((Tag) abcTag).setModified(true);
-        }
     }
 
     public int deobfuscateAS3Identifiers(RenameType renameType) {
