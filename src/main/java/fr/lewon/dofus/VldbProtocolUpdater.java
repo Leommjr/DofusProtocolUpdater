@@ -36,6 +36,14 @@ public class VldbProtocolUpdater {
     private VldbProtocolUpdater() {
     }
 
+    /**
+     * Decompiles passed swfFile, then looks for file specified by passed taskBuilders.
+     * For each of these files, the corresponding taskBuilder manager will be cleared then filled with the array
+     * (corresponding to taskBuilder array name) data.
+     *
+     * @param swfFile
+     * @param taskBuilders
+     */
     public static void updateManagers(File swfFile, List<VldbExportPackTaskBuilder> taskBuilders) {
         if (!swfFile.exists()) {
             throw new RuntimeException("Input SWF file does not exist!");

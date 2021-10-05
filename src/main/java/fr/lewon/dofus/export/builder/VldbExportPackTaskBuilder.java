@@ -19,19 +19,15 @@ public class VldbExportPackTaskBuilder {
     }
 
     public VldbExportPackTask build(ScriptPack pack, ScriptExportSettings exportSettings, EventListener evl) {
-        return new VldbExportPackTask(pack, exportSettings, evl, fileName, manager, arrayName);
+        return new VldbExportPackTask(pack, exportSettings, evl, this.fileName, this.manager, this.arrayName);
     }
 
     public String getFileName() {
-        return fileName;
+        return this.fileName;
     }
 
     public IdByNameManager getManager() {
-        return manager;
-    }
-
-    public String getArrayName() {
-        return arrayName;
+        return this.manager;
     }
 
 }
