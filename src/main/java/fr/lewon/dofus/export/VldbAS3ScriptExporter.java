@@ -6,7 +6,7 @@ import com.jpexs.decompiler.flash.abc.ScriptPack;
 import com.jpexs.decompiler.flash.configuration.Configuration;
 import com.jpexs.decompiler.flash.exporters.settings.ScriptExportSettings;
 import com.jpexs.helpers.Helper;
-import fr.lewon.dofus.export.builder.VldbExportPackTaskBuilder;
+import fr.lewon.dofus.export.builder.VldbAbstractExportPackTaskBuilder;
 import fr.lewon.dofus.export.tasks.VldbExportPackTask;
 
 import java.io.File;
@@ -20,11 +20,11 @@ public class VldbAS3ScriptExporter {
 
     private static final Logger logger = Logger.getLogger(VldbAS3ScriptExporter.class.getName());
 
-    public List<File> exportDofusScript(SWF swf, List<ScriptPack> as3scripts, ScriptExportSettings exportSettings, EventListener evl, List<VldbExportPackTaskBuilder> taskBuilders) {
+    public List<File> exportDofusScript(SWF swf, List<ScriptPack> as3scripts, ScriptExportSettings exportSettings, EventListener evl, List<VldbAbstractExportPackTaskBuilder> taskBuilders) {
         final List<File> ret = new ArrayList<>();
         List<ScriptPack> packs = as3scripts != null ? as3scripts : swf.getAS3Packs();
 
-        Map<String, VldbExportPackTaskBuilder> buildersByFileName = new HashMap<>();
+        Map<String, VldbAbstractExportPackTaskBuilder> buildersByFileName = new HashMap<>();
         taskBuilders.forEach(b -> buildersByFileName.put(b.getFileName(), b));
 
         Set<String> toExportNames = buildersByFileName.keySet();
@@ -49,7 +49,7 @@ public class VldbAS3ScriptExporter {
                 continue;
             }
 
-            VldbExportPackTaskBuilder taskBuilder = buildersByFileName.get(item.getName());
+            VldbAbstractExportPackTaskBuilder taskBuilder = buildersByFileName.get(item.getName());
             if (taskBuilder == null) {
                 continue;
             }

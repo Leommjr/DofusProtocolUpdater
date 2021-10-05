@@ -25,7 +25,7 @@ import com.jpexs.decompiler.flash.exporters.settings.ScriptExportSettings;
 import com.jpexs.decompiler.flash.treeitems.SWFList;
 import com.jpexs.helpers.CancellableWorker;
 import com.jpexs.helpers.Helper;
-import fr.lewon.dofus.export.builder.VldbExportPackTaskBuilder;
+import fr.lewon.dofus.export.builder.VldbAbstractExportPackTaskBuilder;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,13 +38,12 @@ public class VldbProtocolUpdater {
 
     /**
      * Decompiles passed swfFile, then looks for file specified by passed taskBuilders.
-     * For each of these files, the corresponding taskBuilder manager will be cleared then filled with the array
-     * (corresponding to taskBuilder array name) data.
+     * For each of these files, the corresponding taskBuilder file treatment will be called on the file content
      *
      * @param swfFile
      * @param taskBuilders
      */
-    public static void updateManagers(File swfFile, List<VldbExportPackTaskBuilder> taskBuilders) {
+    public static void updateManagers(File swfFile, List<VldbAbstractExportPackTaskBuilder> taskBuilders) {
         if (!swfFile.exists()) {
             throw new RuntimeException("Input SWF file does not exist!");
         }

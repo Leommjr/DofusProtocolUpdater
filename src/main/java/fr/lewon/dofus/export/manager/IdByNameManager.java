@@ -9,8 +9,8 @@ public abstract class IdByNameManager {
     private final Map<Integer, String> nameById = new HashMap<>();
 
     public synchronized void addPair(String messageName, int messageId) {
-        this.idByName.put(messageName, messageId);
-        this.nameById.put(messageId, messageName);
+        idByName.put(messageName, messageId);
+        nameById.put(messageId, messageName);
     }
 
     public Integer getId(String name) {

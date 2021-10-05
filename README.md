@@ -7,25 +7,25 @@ updates.
 ### How to use
 
 To use this updater,
-call `VldbProtocolUpdater.updateManagers(File swfFile, List<VldbExportPackTaskBuilder> taskBuilders)`.
+call `VldbProtocolUpdater.updateManagers(File swfFile, List<VldbAbstractExportPackTaskBuilder> taskBuilders)`.
 
 swfFile should be the DofusInvoker.swf file object. <br>
-taskBuilders define the files to export, and how (at the moment, the only exportable files are "array builders", let me
-explain).
+taskBuilders define the files to export, and how (at the moment, the only exportable files are "id by name managers",
+let me explain).
 
-### VldbExportPackTaskBuilder
+### VldbAbstractExportPackTaskBuilder
 
-As I said, the only exportable files are array builders (feel free to implement any other export type yourself if
-needed !). What I call an array builder is a class with the sole purpose of managing an array, for example :
+As I said, the only exportable files are id by name managers (feel free to implement any other export type yourself if
+needed !). What I call an id by name manager is a class with the sole purpose of managing names by ids, for example :
 
 ![MessageReceiver](demo/message_receiver.png)
 
 `MessageReceiver` holds an array called `_messagesTypes`. They represent the network messages by their id. You could
-then export this with a `VldbExportPackTaskBuilder(String fileName, IdByNameManager manager, String arrayName)` with
-parameters :
+then export this with a `VldbIdByNameExportPackTaskBuilder(String fileName, IdByNameManager manager, String arrayName)`
+with parameters :
 <br>- fileName = MessageReceiver
 <br>- manager = an instance of IdByNameManager which is a sort of bidirectional Map
 <br>- arrayName = _messagesTypes
 
-When calling `VldbProtocolUpdater.updateManagers` with this `VldbExportPackTaskBuilder`, the manager will first be
-cleared then filled with the data found in the MessageReceiver class. cleared and will hold 
+When calling `VldbProtocolUpdater.updateManagers` with this `VldbAbstractExportPackTaskBuilder`, the manager will first
+be cleared then filled with the data found in the MessageReceiver class.
