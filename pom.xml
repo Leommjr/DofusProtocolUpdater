@@ -7,7 +7,7 @@
     <groupId>fr.lewon</groupId>
     <artifactId>DofusProtocolUpdater</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
