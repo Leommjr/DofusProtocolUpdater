@@ -9,7 +9,7 @@ public abstract class VldbAbstractExportPackTaskBuilder {
 
     private final String fileName;
 
-    public VldbAbstractExportPackTaskBuilder(String fileName) {
+    protected VldbAbstractExportPackTaskBuilder(String fileName) {
         this.fileName = fileName;
     }
 
