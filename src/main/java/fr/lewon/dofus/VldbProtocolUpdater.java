@@ -39,11 +39,8 @@ public class VldbProtocolUpdater {
     /**
      * Decompiles passed swfFile, then looks for file specified by passed taskBuilders.
      * For each of these files, the corresponding taskBuilder file treatment will be called on the file content
-     *
-     * @param swfFile
-     * @param taskBuilders
      */
-    public static void updateManagers(File swfFile, List<VldbAbstractExportPackTaskBuilder> taskBuilders) {
+    public static void decompileSwf(File swfFile, List<VldbAbstractExportPackTaskBuilder> taskBuilders) {
         if (!swfFile.exists()) {
             throw new RuntimeException("Input SWF file does not exist!");
         }
