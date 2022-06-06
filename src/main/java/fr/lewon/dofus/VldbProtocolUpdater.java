@@ -84,10 +84,10 @@ public class VldbProtocolUpdater {
             System.out.println("Export finished: " + swfFile.getName() + " Export time: " + Helper.formatTimeSec(time));
 
             swf.clearAllCache();
-            CancellableWorker.cancelBackgroundThreads();
         } catch (OutOfMemoryError |
                 Exception ex) {
             System.err.print("FAIL: Exporting Failed on Exception - ");
+        } finally {
             CancellableWorker.cancelBackgroundThreads();
         }
     }
