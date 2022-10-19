@@ -10,7 +10,9 @@ import fr.lewon.dofus.export.builder.VldbAbstractExportPackTaskBuilder;
 import fr.lewon.dofus.export.tasks.VldbExportPackTask;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,13 +26,10 @@ public class VldbAS3ScriptExporter {
         final List<File> ret = new ArrayList<>();
         List<ScriptPack> packs = as3scripts != null ? as3scripts : swf.getAS3Packs();
 
-        Map<String, VldbAbstractExportPackTaskBuilder> buildersByFileName = new HashMap<>();
-        taskBuilders.forEach(b -> buildersByFileName.put(b.getFileName(), b));
-
-        Set<String> toExportNames = buildersByFileName.keySet();
-        packs = packs.stream()
-                .filter(s -> toExportNames.contains(s.getName()))
-                .collect(Collectors.toList());
+        Map<ScriptPack, List<VldbAbstractExportPackTaskBuilder>> buildersByPack = packs.stream().collect(Collectors.toMap(
+                p -> p,
+                p -> taskBuilders.stream().filter(tb -> tb.matchesScriptPack(p)).collect(Collectors.toList())
+        ));
 
         List<String> ignoredClasses = new ArrayList<>();
         List<String> ignoredNss = new ArrayList<>();
@@ -38,23 +37,14 @@ public class VldbAS3ScriptExporter {
         String flexClass = swf.getFlexMainClass(ignoredClasses, ignoredNss);
 
         List<VldbExportPackTask> tasks = new ArrayList<>();
-        for (ScriptPack item : packs) {
-            if (!item.isSimple && Configuration.ignoreCLikePackages.get()) {
+        for (Map.Entry<ScriptPack, List<VldbAbstractExportPackTaskBuilder>> entry : buildersByPack.entrySet()) {
+            ScriptPack scriptPack = entry.getKey();
+            if (!scriptPack.isSimple && Configuration.ignoreCLikePackages.get()
+                    || ignoredClasses.contains(scriptPack.getClassPath().toRawString())
+                    || flexClass != null && scriptPack.getClassPath().toRawString().equals(flexClass)) {
                 continue;
             }
-            if (ignoredClasses.contains(item.getClassPath().toRawString())) {
-                continue;
-            }
-            if (flexClass != null && item.getClassPath().toRawString().equals(flexClass)) {
-                continue;
-            }
-
-            VldbAbstractExportPackTaskBuilder taskBuilder = buildersByFileName.get(item.getName());
-            if (taskBuilder == null) {
-                continue;
-            }
-
-            tasks.add(taskBuilder.build(item, exportSettings, evl));
+            entry.getValue().forEach(tb -> tasks.add(tb.build(scriptPack, exportSettings, evl)));
         }
 
         ExecutorService executor = Executors.newFixedThreadPool(Configuration.getParallelThreadCount());
@@ -69,17 +59,17 @@ public class VldbAS3ScriptExporter {
             if (!executor.awaitTermination(Configuration.exportTimeout.get(), TimeUnit.SECONDS)) {
                 logger.log(Level.SEVERE, "{0} ActionScript export limit reached", Helper.formatTimeToText(Configuration.exportTimeout.get()));
             }
-        } catch (InterruptedException ex) {
+        } catch (InterruptedException ignored) {
         } finally {
             executor.shutdownNow();
         }
 
-        for (int f = 0; f < futureResults.size(); f++) {
+        for (Future<File> futureResult : futureResults) {
             try {
-                if (futureResults.get(f).isDone()) {
-                    ret.add(futureResults.get(f).get());
+                if (futureResult.isDone()) {
+                    ret.add(futureResult.get());
                 }
-            } catch (InterruptedException ex) {
+            } catch (InterruptedException ignored) {
             } catch (ExecutionException ex) {
                 logger.log(Level.SEVERE, "Error during ABC export", ex);
             }

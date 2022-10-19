@@ -85,7 +85,7 @@ public class VldbProtocolUpdater {
 
             swf.clearAllCache();
         } catch (OutOfMemoryError |
-                Exception ex) {
+                 Exception ex) {
             System.err.print("FAIL: Exporting Failed on Exception - ");
         } finally {
             CancellableWorker.cancelBackgroundThreads();

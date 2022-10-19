@@ -9,7 +9,7 @@ import com.jpexs.helpers.Helper;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class VldbExportPackTask implements Callable<File> {
 
@@ -17,11 +17,11 @@ public class VldbExportPackTask implements Callable<File> {
     private final ScriptExportSettings exportSettings;
     private final EventListener eventListener;
     private final String fileName;
-    private final Consumer<String> fileContentTreatment;
+    private final BiConsumer<String, ScriptPack> fileContentTreatment;
 
     private long startTime;
 
-    public VldbExportPackTask(ScriptPack pack, ScriptExportSettings exportSettings, EventListener evl, String fileName, Consumer<String> fileContentTreatment) {
+    public VldbExportPackTask(ScriptPack pack, ScriptExportSettings exportSettings, EventListener evl, String fileName, BiConsumer<String, ScriptPack> fileContentTreatment) {
         this.pack = pack;
         this.exportSettings = exportSettings;
         eventListener = evl;
@@ -48,7 +48,7 @@ public class VldbExportPackTask implements Callable<File> {
 
     private void handleExport(RunnableIOExResult<String> rio) {
         if (eventListener != null) {
-            fileContentTreatment.accept(rio.result);
+            fileContentTreatment.accept(rio.result, pack);
             long time = System.currentTimeMillis() - startTime;
             eventListener.handleExportedEvent(fileName, Helper.formatTimeSec(time));
         }

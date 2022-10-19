@@ -1,10 +1,12 @@
 package fr.lewon.dofus.export.builder;
 
+import com.jpexs.decompiler.flash.abc.ScriptPack;
+
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class VldbRegexExportPackTaskBuilder extends VldbAbstractExportPackTaskBuilder {
+public abstract class VldbRegexExportPackTaskBuilder extends VldbAbstractFileExportPackTaskBuilder {
 
     private final String regex;
 
@@ -14,7 +16,7 @@ public abstract class VldbRegexExportPackTaskBuilder extends VldbAbstractExportP
     }
 
     @Override
-    public void treatFileContent(String fileContent) {
+    public void treatFileContent(String fileContent, ScriptPack scriptPack) {
         Pattern p = Pattern.compile(regex);
         Arrays.stream(fileContent.split("\n"))
                 .map(p::matcher)

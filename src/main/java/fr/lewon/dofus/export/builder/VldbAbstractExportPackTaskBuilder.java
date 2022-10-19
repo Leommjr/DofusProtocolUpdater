@@ -7,20 +7,13 @@ import fr.lewon.dofus.export.tasks.VldbExportPackTask;
 
 public abstract class VldbAbstractExportPackTaskBuilder {
 
-    private final String fileName;
-
-    protected VldbAbstractExportPackTaskBuilder(String fileName) {
-        this.fileName = fileName;
-    }
 
     public VldbExportPackTask build(ScriptPack pack, ScriptExportSettings exportSettings, EventListener evl) {
-        return new VldbExportPackTask(pack, exportSettings, evl, getFileName(), this::treatFileContent);
+        return new VldbExportPackTask(pack, exportSettings, evl, pack.getName(), this::treatFileContent);
     }
 
-    public String getFileName() {
-        return fileName;
-    }
+    public abstract void treatFileContent(String fileContent, ScriptPack scriptPack);
 
-    public abstract void treatFileContent(String fileContent);
+    public abstract boolean matchesScriptPack(ScriptPack scriptPack);
 
 }

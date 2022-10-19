@@ -1,5 +1,6 @@
 package fr.lewon.dofus.export.builder;
 
+import com.jpexs.decompiler.flash.abc.ScriptPack;
 import fr.lewon.dofus.export.manager.IdByNameManager;
 
 import java.util.Arrays;
@@ -8,7 +9,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class VldbIdByNameExportPackTaskBuilder extends VldbAbstractExportPackTaskBuilder {
+public class VldbIdByNameExportPackTaskBuilder extends VldbAbstractFileExportPackTaskBuilder {
 
     private final IdByNameManager manager;
     private final String arrayName;
@@ -20,7 +21,7 @@ public class VldbIdByNameExportPackTaskBuilder extends VldbAbstractExportPackTas
     }
 
     @Override
-    public void treatFileContent(String fileContent) {
+    public void treatFileContent(String fileContent, ScriptPack scriptPack) {
         Pattern p = Pattern.compile(arrayName + "\\[([0-9]+)] = (.*?);");
         Map<Integer, String> messageNamesById = new HashMap<>();
         Arrays.stream(fileContent.split("\n"))
